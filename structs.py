@@ -68,6 +68,29 @@ HVAC_CONTROL = construct.Struct(
     ),
 )
 
+HVAC_RESPONSE = construct.Struct(
+    data=construct.RawCopy(
+        construct.BitStruct(
+            engine_running=construct.Flag,
+            unknown1=construct.BitsInteger(3),
+            configured_on=construct.Flag,
+            unknown2=construct.BitsInteger(2),
+            preheating=construct.Flag,
+            not_temperature=construct.Flag,
+            maybe_raw_room_temperature=construct.BitsInteger(7),
+            maybe_actual_room_temperature=construct.Computed(
+                    (construct.this.maybe_raw_room_temperature / 2) + 10
+                ),
+            unknown3=construct.BitsInteger(8),
+            unknown4=construct.BitsInteger(8),
+            unknown5=construct.BitsInteger(8),
+        )
+    ),
+    checksum=construct.Checksum(
+        construct.Byte, calculate_checksum, construct.this.data.data
+    ),
+)
+
 
 @dataclasses.dataclass(eq=True)
 class Settings:
