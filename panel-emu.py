@@ -46,8 +46,14 @@ class PanelEmu:
         while True:
             try:
                 cmd = await aioconsole.ainput()
-                attribute, value = cmd.split('=', 1)
-                if attribute in {"resistor_heating", "running", "plasma", "swivel", "swirl"}:
+                attribute, value = cmd.split("=", 1)
+                if attribute in {
+                    "resistor_heating",
+                    "running",
+                    "plasma",
+                    "swivel",
+                    "swirl",
+                }:
                     value = value.lower() in {"y", "yes", "on", "true"}
                 elif attribute in {"room_temperature", "set_temperature"}:
                     value = float(value)
@@ -58,8 +64,10 @@ class PanelEmu:
                 else:
                     await aioconsole.aprint(f"I don't know {cmd}")
                     continue
-            
-                self._next_settings = dataclasses.replace(self._last_settings, **{attribute: value})
+
+                self._next_settings = dataclasses.replace(
+                    self._last_settings, **{attribute: value}
+                )
             except Exception as error:
                 await aioconsole.aprint(f"ooops: {error}")
 
