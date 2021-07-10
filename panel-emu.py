@@ -4,6 +4,7 @@
 
 import asyncio
 import dataclasses
+import datetime
 
 import aioconsole
 import click
@@ -17,14 +18,16 @@ class PanelEmu:
     _serial: serial.Serial
     _next_settings: structs.Settings
     _last_settings: structs.Settings
+    _period: datetime.timedelta
 
-    def __init__(self, serial_port: str) -> None:
+    def __init__(self, serial_port: str, period: datetime.timedelta) -> None:
         self._serial = serial.Serial(serial_port, baudrate=104, timeout=1.5)
         self._last_settings = self._next_settings = structs.Settings()
+        self._period = period
 
     async def bus_loop(self):
         while True:
-            await asyncio.sleep(2)
+            await asyncio.sleep(self._period.total_seconds())
             if self._last_settings != self._next_settings:
                 packet = self._next_settings.to_packet(changed=True)
                 self._last_settings = self._next_settings
@@ -63,13 +66,14 @@ class PanelEmu:
 
 
 @click.command()
+@click.option("--period-sec", type=click.IntRange(min=2), default=4)
 @click.argument(
     "serial-port", type=click.Path(dir_okay=False, file_okay=True, writable=True)
 )
-def main(serial_port: str) -> None:
+def main(period_sec: int, serial_port: str) -> None:
     loop = asyncio.get_event_loop()
 
-    emu = PanelEmu(serial_port)
+    emu = PanelEmu(serial_port, datetime.timedelta(seconds=period_sec))
     emu.run(loop)
 
 
