@@ -5,6 +5,7 @@
 import asyncio
 import dataclasses
 import datetime
+from typing import Optional
 
 import aioconsole
 import click
@@ -17,12 +18,13 @@ class PanelEmu:
 
     _serial: serial.Serial
     _next_settings: structs.Settings
-    _last_settings: structs.Settings
+    _last_settings: Optional[structs.Settings]
     _period: datetime.timedelta
 
     def __init__(self, serial_port: str, period: datetime.timedelta) -> None:
         self._serial = serial.Serial(serial_port, baudrate=104, timeout=1.5)
-        self._last_settings = self._next_settings = structs.Settings()
+        self._last_settings = None
+        self._next_settings = structs.Settings()
         self._period = period
 
     async def bus_loop(self):
