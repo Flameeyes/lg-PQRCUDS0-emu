@@ -40,9 +40,10 @@ class PanelEmu:
             result = self._serial.read(12)
             assert len(result) == 12
 
-            response = structs.HVAC_RESPONSE.parse(result[6:])
+            command = structs.HVAC_CONTROL.parse(result[0:6])
+            response = structs.HVAC_RESPONSE.parse(result[6:12])
 
-            await aioconsole.aprint(response.data.value)
+            await aioconsole.aprint(f"{command.data.value}\n{response.data.value}")
 
     async def user_loop(self):
         while True:
